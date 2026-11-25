@@ -4,7 +4,7 @@ A `.COF` file is a configuration backup written by the TR-512 **Save Configurati
 
 Every file seen so far is 382 bytes. Multi-byte integers are little-endian. Strings are ASCII, NUL-padded.
 
-Samples: `CONFIG/Lamp-OK.COF`, `CONFIG/Conf-002.COF` (factory defaults) through `CONFIG/Conf-011.COF`.
+Samples: `Raw_files/CONFIG/Lamp-OK.COF`, `Raw_files/CONFIG/Conf-002.COF` (factory defaults) through `Raw_files/CONFIG/Conf-011.COF`. A short synthetic configuration is `example.COF`.
 
 Official manual: [TR-512 V3, order code 50825](https://www.techni-lux.com/files/documents/CT-SHTR512_MANUAL_GB_V3.pdf).
 

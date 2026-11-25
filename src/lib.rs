@@ -1,4 +1,5 @@
 pub mod artnet;
-pub mod cof;
+pub mod devices;
 pub mod gui;
-pub mod ncod;
+pub mod show;
+pub mod showfile;

@@ -1,4 +1,4 @@
-use crate::ncod::Show;
+use crate::show::Show;
 use egui::{pos2, vec2, Color32, Painter, PointerButton, Rect, Response, Sense, Ui};
 
 use super::ncod_view::{Gesture, NcodViewState, TimelineTool};

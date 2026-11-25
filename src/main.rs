@@ -1,4 +1,4 @@
-use ncod_artnet::{artnet, ncod};
+use ncod_artnet::{artnet, show, showfile};
 
 use std::env;
 use std::net::{IpAddr, SocketAddr, ToSocketAddrs};
@@ -8,6 +8,8 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 const USAGE: &str = "\
+Play a DMX recorder show as Art-Net. Reads .jsonl, or a Showtec TR-512 .NCOD.
+
 ncod-artnet <file> [options]
 
   -t, --target <ip[:port]>   Art-Net node or broadcast (default 255.255.255.255:6454)
@@ -35,7 +37,9 @@ fn main() -> ExitCode {
 
 fn run() -> Result<(), String> {
     let args = parse_args()?;
-    let show = ncod::load(&args.file)?;
+    let bytes = std::fs::read(&args.file)
+        .map_err(|err| format!("cannot read {}: {err}", args.file.display()))?;
+    let show = showfile::parse_show(&bytes)?;
     let seconds = show.end_ms() / 1000;
     let millis = show.end_ms() % 1000;
     println!(
@@ -62,7 +66,7 @@ fn play(
     socket: &std::net::UdpSocket,
     target: SocketAddr,
     universe: u16,
-    frames: &[ncod::Frame],
+    frames: &[show::Frame],
 ) -> Result<(), String> {
     let origin = Instant::now();
     let mut sequence = 1u8;

@@ -1,4 +1,4 @@
-use crate::ncod::Show;
+use crate::show::Show;
 use egui::{Color32, RichText, Ui};
 
 use super::ncod_view::NcodViewState;

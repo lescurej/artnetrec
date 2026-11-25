@@ -1,5 +1,5 @@
 use egui::{RichText, Ui};
-use crate::cof::{Config, DmxPort, TriggerMode, TriggerStatus};
+use crate::devices::tr512::cof::{Config, DmxPort, TriggerMode, TriggerStatus};
 
 pub struct CofViewState {
     pub selected_trigger: usize,

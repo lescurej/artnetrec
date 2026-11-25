@@ -4,7 +4,7 @@ A `.NCOD` file is a DMX show. The TR-512 records one, and plays it back from a t
 
 Multi-byte integers are big-endian. A frame is packed tight against the next one. There is no checksum and no file footer.
 
-Sample: `samples/RECORDER/SH-001.NCOD` (identical to `samples/SH-001.NCOD`). 641,418 bytes, 1,207 frames, last timestamp 43,739 ms. Channels 1–4 carry the show. The rest of the universe stays at `0`.
+Sample: `Raw_files/RECORDER/SH-001.NCOD`. 641,418 bytes, 1,207 frames, last timestamp 43,739 ms. Channels 1–4 carry the show. The rest of the universe stays at `0`. A short synthetic show is `example.NCOD`.
 
 ## File layout
 

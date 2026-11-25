@@ -1,4 +1,4 @@
-use crate::ncod::{Frame, Show};
+use crate::show::{Frame, Show};
 use egui::{Color32, Context, RichText, Slider, Ui};
 
 use super::playback::{PlaybackEvent, PlaybackHandle, PlaybackSettings};

@@ -1,4 +1,4 @@
-use crate::ncod::{Frame, Show};
+use crate::show::{Frame, Show};
 
 #[derive(Clone)]
 pub enum UndoOp {

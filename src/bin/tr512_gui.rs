@@ -1,6 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use ncod_artnet::gui::Tr512App;
+use ncod_artnet::gui::App;
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
@@ -8,8 +8,8 @@ fn main() -> eframe::Result<()> {
         ..Default::default()
     };
     eframe::run_native(
-        "TR-512 Editor",
+        "DMX Recorder",
         options,
-        Box::new(|cc| Ok(Box::new(Tr512App::new(cc)))),
+        Box::new(|cc| Ok(Box::new(App::new(cc)))),
     )
 }

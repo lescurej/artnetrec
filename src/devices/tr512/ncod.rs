@@ -1,3 +1,4 @@
+use crate::show::{Frame, Show};
 use std::fs;
 use std::path::Path;
 
@@ -5,46 +6,9 @@ const MAGIC: &[u8] = b"framedmx";
 pub const FILE_HEADER: usize = 512;
 const PREFIX: usize = 19;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Frame {
-    pub at_ms: u32,
-    pub slots: [u8; 512],
-}
-
-#[derive(Debug, Clone)]
-pub struct Show {
-    pub frames: Vec<Frame>,
-}
-
-impl Show {
-    pub fn end_ms(&self) -> u32 {
-        self.frames.last().map(|frame| frame.at_ms).unwrap_or(0)
-    }
-
-    pub fn active_channels(&self) -> Vec<u16> {
-        let mut mask = [false; 512];
-        for frame in &self.frames {
-            for (index, slot) in frame.slots.iter().enumerate() {
-                if *slot != 0 {
-                    mask[index] = true;
-                }
-            }
-        }
-        mask.iter()
-            .enumerate()
-            .filter_map(|(index, on)| on.then_some(index as u16 + 1))
-            .collect()
-    }
-
-    pub fn timestamps_monotonic(&self) -> bool {
-        self.frames
-            .windows(2)
-            .all(|pair| pair[0].at_ms <= pair[1].at_ms)
-    }
-
-    pub fn sort_by_time(&mut self) {
-        self.frames.sort_by_key(|frame| frame.at_ms);
-    }
+pub fn is_file(bytes: &[u8]) -> bool {
+    bytes.len() >= FILE_HEADER + MAGIC.len()
+        && &bytes[FILE_HEADER..FILE_HEADER + MAGIC.len()] == MAGIC
 }
 
 pub fn compact_nslots(slots: &[u8; 512]) -> u16 {
@@ -183,7 +147,8 @@ mod tests {
 
     #[test]
     fn round_trips_sample_recording() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/SH-001.NCOD");
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("samples/Showtec TR-512/Raw_files/RECORDER/SH-001.NCOD");
         let original = load(&path).unwrap();
         let blob = to_bytes(&original).unwrap();
         let restored = parse(&blob).unwrap();
@@ -192,7 +157,8 @@ mod tests {
 
     #[test]
     fn parses_the_sample_recording() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/SH-001.NCOD");
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("samples/Showtec TR-512/Raw_files/RECORDER/SH-001.NCOD");
         let show = load(&path).unwrap();
         assert_eq!(show.frames.len(), 1207);
         assert_eq!(show.frames[0].at_ms, 22);
@@ -211,5 +177,18 @@ mod tests {
                 && frame.slots[5] == 0
                 && frame.slots[6..].iter().all(|b| *b == 0)
         }));
+    }
+
+    #[test]
+    fn parses_the_example() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/Showtec TR-512/example.NCOD");
+        let show = load(&path).unwrap();
+        assert_eq!(show.frames.len(), 5);
+        assert_eq!(show.end_ms(), 2_000);
+        assert_eq!(show.frames[0].slots[0], 0);
+        assert_eq!(show.frames[0].slots[1], 255);
+        assert_eq!(show.frames[4].slots[0], 255);
+        assert_eq!(show.frames[4].slots[1], 0);
+        assert!(shows_equal(&show, &parse(&to_bytes(&show).unwrap()).unwrap()));
     }
 }

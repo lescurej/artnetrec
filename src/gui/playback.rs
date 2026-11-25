@@ -1,4 +1,4 @@
-use crate::{artnet, ncod};
+use crate::{artnet, show};
 use std::net::{IpAddr, SocketAddr, ToSocketAddrs};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, mpsc};
@@ -50,7 +50,7 @@ impl PlaybackHandle {
 }
 
 pub fn start(
-    frames: Arc<Vec<ncod::Frame>>,
+    frames: Arc<Vec<show::Frame>>,
     start_index: usize,
     settings: PlaybackSettings,
     events: mpsc::Sender<PlaybackEvent>,
@@ -99,7 +99,7 @@ fn play_once(
     socket: &std::net::UdpSocket,
     target: SocketAddr,
     universe: u16,
-    frames: &[ncod::Frame],
+    frames: &[show::Frame],
     start_index: usize,
     stop: &AtomicBool,
     events: &mpsc::Sender<PlaybackEvent>,

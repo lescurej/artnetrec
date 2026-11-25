@@ -3,6 +3,10 @@ use std::path::Path;
 
 pub const FILE_SIZE: usize = 382;
 const MAGIC: &[u8] = b"[Config]";
+
+pub fn is_file(bytes: &[u8]) -> bool {
+    bytes.len() >= MAGIC.len() && &bytes[..MAGIC.len()] == MAGIC
+}
 const TRIGGERS_AT: usize = 0x46;
 const TRIGGER_SIZE: usize = 48;
 const IDLE_FILE_AT: usize = 0x166;
@@ -238,7 +242,8 @@ mod tests {
     use std::path::PathBuf;
 
     fn sample_dir() -> PathBuf {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("samples/CONFIG")
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("samples/Showtec TR-512/Raw_files/CONFIG")
     }
 
     #[test]
@@ -253,5 +258,16 @@ mod tests {
             let encoded = to_bytes(&config);
             assert_eq!(raw.as_slice(), encoded.as_slice(), "{}", path.display());
         }
+    }
+
+    #[test]
+    fn example_points_at_the_example_show() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("samples/Showtec TR-512/example.COF");
+        let raw = std::fs::read(&path).unwrap();
+        let config = parse(&raw).unwrap();
+        assert_eq!(config.triggers[0].show_file, "example.NCOD");
+        assert_eq!(config.triggers[0].status, TriggerStatus::Enable);
+        assert_eq!(config.idle_file, "example.NCOD");
+        assert_eq!(raw.as_slice(), to_bytes(&config).as_slice());
     }
 }

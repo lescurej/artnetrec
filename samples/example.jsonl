@@ -1,0 +1,6 @@
+{"dmx-recorder":1}
+{"at_ms":0,"channels":{"2":255}}
+{"at_ms":500,"channels":{"1":64,"2":192}}
+{"at_ms":1000,"channels":{"1":128,"2":128}}
+{"at_ms":1500,"channels":{"1":192,"2":64}}
+{"at_ms":2000,"channels":{"1":255}}
