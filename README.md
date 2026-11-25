@@ -4,6 +4,8 @@ Edit, play, and record shows for standalone DMX players. A show is a timeline of
 
 The application file is [JSON Lines](FORMAT.md): `.jsonl`. One line is one look. A line stores the channels that are on, so a scene held for hours stays one line, and channels left at zero take no space. A text editor or an AI can change a look by editing that line.
 
+![DMX Recorder](screencap.png)
+
 A recorder has its own file format. The editor imports that file into `.jsonl` and exports `.jsonl` back out when the recorder needs it. Showtec TR-512 `.NCOD` (the show) and `.COF` (the configuration) are the first of those formats. Restoring a `.COF` does not restore a missing show file.
 
 TR-512 byte layouts are documented in [samples/Showtec TR-512/NCOD_README.md](samples/Showtec%20TR-512/NCOD_README.md) and [samples/Showtec TR-512/COF_README.md](samples/Showtec%20TR-512/COF_README.md).
