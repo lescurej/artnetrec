@@ -1,0 +1,35 @@
+[package]
+name = "ncod-artnet"
+version = "0.1.0"
+edition = "2021"
+description = "Play a Showtec TR-512 NCOD recording as Art-Net DMX"
+default-run = "ncod-artnet"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "ncod-artnet"
+path = "src/main.rs"
+
+[[bin]]
+name = "blind01"
+path = "src/bin/blind01.rs"
+
+[[bin]]
+name = "lamp01"
+path = "src/bin/lamp01.rs"
+
+[[bin]]
+name = "marquise"
+path = "src/bin/marquise.rs"
+
+[[bin]]
+name = "tr512-gui"
+path = "src/bin/tr512_gui.rs"
+
+[dependencies]
+eframe = { version = "0.29", default-features = true }
+egui = "0.29"
+egui_plot = "0.29"
+rfd = "0.15"
