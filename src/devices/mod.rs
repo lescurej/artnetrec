@@ -1,5 +1,6 @@
 use crate::show::Show;
 
+pub mod cuecore2;
 pub mod tr512;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,7 +28,7 @@ pub struct Device {
     pub config_extensions: &'static [&'static str],
 }
 
-pub const DEVICES: &[Device] = &[tr512::DEVICE];
+pub const DEVICES: &[Device] = &[tr512::DEVICE, cuecore2::DEVICE];
 
 pub fn show_formats() -> impl Iterator<Item = &'static ShowFormat> {
     DEVICES.iter().filter_map(|device| device.show.as_ref())
@@ -54,6 +55,22 @@ pub fn open_filters() -> Vec<(&'static str, Vec<&'static str>)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cuecore2_detects_its_backup_and_ignores_jsonl() {
+        let format = cuecore2::DEVICE.show.unwrap();
+        let xml = std::fs::read(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("samples/Cuecore2/chezphilippe.xml"),
+        )
+        .unwrap();
+        let jsonl = std::fs::read(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/example.jsonl"),
+        )
+        .unwrap();
+        assert!((format.detect)(&xml));
+        assert!(!(format.detect)(&jsonl));
+    }
 
     #[test]
     fn tr512_detects_its_show_and_ignores_jsonl() {

@@ -81,14 +81,14 @@ pub fn parse(data: &[u8]) -> Result<Show, String> {
         }
         let mut slots = [0u8; 512];
         slots[..nslots].copy_from_slice(&data[pos + PREFIX..end]);
-        frames.push(Frame { at_ms, slots });
+        frames.push(Frame::full(at_ms, slots));
         pos = end;
     }
 
     if frames.is_empty() {
         return Err("recording has no frames".into());
     }
-    Ok(Show { frames })
+    Ok(Show::new(frames))
 }
 
 fn u16_be(data: &[u8], at: usize) -> u16 {
@@ -140,9 +140,10 @@ mod tests {
         if a.frames.len() != b.frames.len() {
             return false;
         }
-        a.frames.iter().zip(&b.frames).all(|(left, right)| {
-            left.at_ms == right.at_ms && left.slots == right.slots
-        })
+        a.frames
+            .iter()
+            .zip(&b.frames)
+            .all(|(left, right)| left.at_ms == right.at_ms && left.slots == right.slots)
     }
 
     #[test]
@@ -181,7 +182,8 @@ mod tests {
 
     #[test]
     fn parses_the_example() {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/Showtec TR-512/example.NCOD");
+        let path =
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("samples/Showtec TR-512/example.NCOD");
         let show = load(&path).unwrap();
         assert_eq!(show.frames.len(), 5);
         assert_eq!(show.end_ms(), 2_000);
@@ -189,6 +191,9 @@ mod tests {
         assert_eq!(show.frames[0].slots[1], 255);
         assert_eq!(show.frames[4].slots[0], 255);
         assert_eq!(show.frames[4].slots[1], 0);
-        assert!(shows_equal(&show, &parse(&to_bytes(&show).unwrap()).unwrap()));
+        assert!(shows_equal(
+            &show,
+            &parse(&to_bytes(&show).unwrap()).unwrap()
+        ));
     }
 }

@@ -8,6 +8,16 @@ pub enum UndoOp {
         before: u8,
         after: u8,
     },
+    ClearKey {
+        frame: usize,
+        slot: usize,
+        level: u8,
+    },
+    AddKey {
+        frame: usize,
+        slot: usize,
+        level: u8,
+    },
     Time {
         frame: usize,
         before: u32,
@@ -100,8 +110,26 @@ fn apply(show: &mut Show, op: &UndoOp, forward: bool) {
             after,
         } => {
             let value = if forward { *after } else { *before };
-            if let Some(f) = show.frames.get_mut(*frame) {
-                f.slots[*slot] = value;
+            if let Some(frame) = show.frames.get_mut(*frame) {
+                frame.set_key(*slot, value);
+            }
+        }
+        UndoOp::ClearKey { frame, slot, level } => {
+            if let Some(frame) = show.frames.get_mut(*frame) {
+                if forward {
+                    frame.clear_key(*slot);
+                } else {
+                    frame.set_key(*slot, *level);
+                }
+            }
+        }
+        UndoOp::AddKey { frame, slot, level } => {
+            if let Some(frame) = show.frames.get_mut(*frame) {
+                if forward {
+                    frame.set_key(*slot, *level);
+                } else {
+                    frame.clear_key(*slot);
+                }
             }
         }
         UndoOp::Time {

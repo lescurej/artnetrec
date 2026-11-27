@@ -8,8 +8,10 @@ pub const RULER_BG: Color32 = Color32::from_rgb(40, 40, 44);
 pub const GRID_MAJOR: Color32 = Color32::from_rgb(58, 58, 64);
 pub const GRID_MINOR: Color32 = Color32::from_rgb(44, 44, 48);
 pub const PLAYHEAD: Color32 = Color32::from_rgb(255, 90, 70);
+pub const MCP_TRACK: Color32 = Color32::from_rgb(255, 48, 48);
 pub const ACCENT: Color32 = Color32::from_rgb(100, 160, 220);
 pub const TRANSPORT_PLAY: Color32 = Color32::from_rgb(72, 180, 110);
+pub const SOLO: Color32 = Color32::from_rgb(255, 196, 40);
 
 pub fn track_color(index: usize) -> Color32 {
     const PALETTE: [Color32; 8] = [
@@ -42,15 +44,17 @@ pub fn apply(ctx: &Context) {
     let mut style = (*ctx.style()).clone();
     style.spacing.item_spacing = egui::vec2(8.0, 6.0);
     style.spacing.button_padding = egui::vec2(10.0, 6.0);
-    style
-        .text_styles
-        .insert(TextStyle::Heading, FontId::new(18.0, FontFamily::Proportional));
+    style.text_styles.insert(
+        TextStyle::Heading,
+        FontId::new(18.0, FontFamily::Proportional),
+    );
     style
         .text_styles
         .insert(TextStyle::Body, FontId::new(14.0, FontFamily::Proportional));
-    style
-        .text_styles
-        .insert(TextStyle::Monospace, FontId::new(13.0, FontFamily::Monospace));
+    style.text_styles.insert(
+        TextStyle::Monospace,
+        FontId::new(13.0, FontFamily::Monospace),
+    );
     ctx.set_style(style);
 }
 

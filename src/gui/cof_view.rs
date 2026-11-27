@@ -1,5 +1,5 @@
-use egui::{RichText, Ui};
 use crate::devices::tr512::cof::{Config, DmxPort, TriggerMode, TriggerStatus};
+use egui::{RichText, Ui};
 
 pub struct CofViewState {
     pub selected_trigger: usize,
@@ -78,7 +78,10 @@ pub fn ui(ui: &mut Ui, config: &mut Config, state: &mut CofViewState) {
     ui.horizontal(|ui| {
         for index in 0..6 {
             let selected = state.selected_trigger == index;
-            if ui.selectable_label(selected, format!("{}", index + 1)).clicked() {
+            if ui
+                .selectable_label(selected, format!("{}", index + 1))
+                .clicked()
+            {
                 state.selected_trigger = index;
             }
         }

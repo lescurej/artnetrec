@@ -152,7 +152,8 @@ pub fn parse(data: &[u8]) -> Result<Config, String> {
     firmware_block.copy_from_slice(&data[0x08..0x18]);
 
     let device_label = read_padded_ascii(&data[0x1A..0x3A]);
-    let triggers = std::array::from_fn(|slot| parse_trigger(&data[TRIGGERS_AT + slot * TRIGGER_SIZE..]));
+    let triggers =
+        std::array::from_fn(|slot| parse_trigger(&data[TRIGGERS_AT + slot * TRIGGER_SIZE..]));
 
     Ok(Config {
         firmware_block,
@@ -205,7 +206,11 @@ pub fn to_bytes(config: &Config) -> [u8; FILE_SIZE] {
     for (slot, trigger) in config.triggers.iter().enumerate() {
         encode_trigger(&mut data[TRIGGERS_AT + slot * TRIGGER_SIZE..], trigger);
     }
-    write_padded_ascii(&mut data[IDLE_FILE_AT..IDLE_FILE_AT + 22], &config.idle_file, 22);
+    write_padded_ascii(
+        &mut data[IDLE_FILE_AT..IDLE_FILE_AT + 22],
+        &config.idle_file,
+        22,
+    );
     data[IDLE_MODE_AT..IDLE_MODE_AT + 2].copy_from_slice(&config.idle_mode.to_le_bytes());
     data
 }
@@ -225,7 +230,10 @@ pub fn write(path: &Path, config: &Config) -> Result<(), String> {
 }
 
 fn read_padded_ascii(data: &[u8]) -> String {
-    let end = data.iter().position(|&byte| byte == 0).unwrap_or(data.len());
+    let end = data
+        .iter()
+        .position(|&byte| byte == 0)
+        .unwrap_or(data.len());
     String::from_utf8_lossy(&data[..end]).into_owned()
 }
 
@@ -242,8 +250,7 @@ mod tests {
     use std::path::PathBuf;
 
     fn sample_dir() -> PathBuf {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("samples/Showtec TR-512/Raw_files/CONFIG")
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("samples/Showtec TR-512/Raw_files/CONFIG")
     }
 
     #[test]
@@ -262,7 +269,8 @@ mod tests {
 
     #[test]
     fn example_points_at_the_example_show() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("samples/Showtec TR-512/example.COF");
+        let path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("samples/Showtec TR-512/example.COF");
         let raw = std::fs::read(&path).unwrap();
         let config = parse(&raw).unwrap();
         assert_eq!(config.triggers[0].show_file, "example.NCOD");

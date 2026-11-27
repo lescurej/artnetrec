@@ -1,5 +1,9 @@
 pub mod artnet;
+pub mod behavior;
+pub mod curve;
 pub mod devices;
 pub mod gui;
+pub mod mcp;
+pub mod session;
 pub mod show;
 pub mod showfile;

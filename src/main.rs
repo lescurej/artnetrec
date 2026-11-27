@@ -1,4 +1,4 @@
-use ncod_artnet::{artnet, show, showfile};
+use ncod_artnet::{artnet, curve, show, showfile};
 
 use std::env;
 use std::net::{IpAddr, SocketAddr, ToSocketAddrs};
@@ -52,8 +52,9 @@ fn run() -> Result<(), String> {
     );
 
     let socket = artnet::socket().map_err(|err| format!("cannot open UDP socket: {err}"))?;
+    let mut sequence = 1u8;
     loop {
-        play(&socket, args.target, args.universe, &show.frames)?;
+        play(&socket, args.target, args.universe, &show, &mut sequence)?;
         if !args.loop_play {
             break;
         }
@@ -66,25 +67,60 @@ fn play(
     socket: &std::net::UdpSocket,
     target: SocketAddr,
     universe: u16,
-    frames: &[show::Frame],
+    show: &show::Show,
+    sequence: &mut u8,
 ) -> Result<(), String> {
+    let frames = &show.frames;
+    if frames.is_empty() {
+        return Ok(());
+    }
+    let curves = curve::TrackCurves::new();
+    curves.restore(&show.output)?;
     let origin = Instant::now();
-    let mut sequence = 1u8;
-    for frame in frames {
-        let at = Duration::from_millis(u64::from(frame.at_ms));
-        if let Some(rest) = at.checked_sub(origin.elapsed()) {
-            thread::sleep(rest);
+    let mut next_tick = Instant::now();
+    let end_ms = frames.last().map(|frame| frame.at_ms).unwrap_or(0);
+    let tracks = ncod_artnet::show::index_tracks(frames);
+    loop {
+        let elapsed_ms = u32::try_from(origin.elapsed().as_millis()).unwrap_or(u32::MAX);
+        let now_ms = elapsed_ms.min(end_ms);
+        let mut slots = levels_from(&tracks, now_ms);
+        curves.apply(&mut slots);
+        let master = curves.map_master(show.output.master);
+        if master != 255 {
+            for slot in &mut slots {
+                *slot = ((u16::from(*slot) * u16::from(master) + 127) / 255) as u8;
+            }
         }
-        let pkt = artnet::packet(universe, sequence, &frame.slots);
+        let pkt = artnet::packet(universe, *sequence, &slots);
         socket
             .send_to(&pkt, target)
             .map_err(|err| format!("send failed: {err}"))?;
-        sequence = sequence.wrapping_add(1);
-        if sequence == 0 {
-            sequence = 1;
+        *sequence = sequence.wrapping_add(1);
+        if *sequence == 0 {
+            *sequence = 1;
+        }
+        if elapsed_ms >= end_ms {
+            break;
+        }
+        next_tick += Duration::from_millis(25);
+        let now = Instant::now();
+        if now > next_tick {
+            if now.saturating_duration_since(next_tick) > Duration::from_millis(25) {
+                next_tick = now + Duration::from_millis(25);
+            }
+        } else {
+            thread::sleep(next_tick - now);
         }
     }
     Ok(())
+}
+
+fn levels_from(tracks: &[Vec<(u32, u8)>], at_ms: u32) -> [u8; 512] {
+    let mut levels = [0u8; 512];
+    for (slot, keys) in tracks.iter().enumerate() {
+        levels[slot] = ncod_artnet::show::lerp_keys(keys, at_ms);
+    }
+    levels
 }
 
 fn parse_args() -> Result<Args, String> {

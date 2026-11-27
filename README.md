@@ -15,6 +15,7 @@ TR-512 byte layouts are documented in [samples/Showtec TR-512/NCOD_README.md](sa
 | Device | Code | Files |
 | --- | --- | --- |
 | Showtec TR-512 | 50825 | Import and export `.NCOD` / `.COF`. |
+| Visual Productions CueCore2 | — | Import and export vManager `.xml` backups (track 1). |
 
 `src/show.rs` is the timeline. `src/showfile.rs` reads and writes `.jsonl`, and dispatches import and export through the device list. `src/devices/` is that list. The TR-512 codecs live in `src/devices/tr512/`.
 
@@ -47,10 +48,24 @@ On a show timeline:
 
 - Scroll zooms on the time under the cursor. Pinch, or Ctrl/Cmd+scroll, does the same.
 - A horizontal swipe, or Shift+scroll, pans. Middle-drag or right-drag pans without changing the zoom.
-- Drag scrubs, including while playback is running. Playback jumps to that frame and continues. The current zoom stays put.
+- Drag scrubs to any time, including between keyframes and while playback is running. Playback continues from that time. The current zoom stays put.
 - Space starts and stops Art-Net playback from the playhead.
 
 The default Art-Net target is `255.255.255.255:6454`, universe 0. Change both in the transport bar.
+
+The editor hosts an MCP server on `127.0.0.1:9474` while it is running (`ARTNETREC_MCP_PORT` overrides the port). The status bar shows `MCP :<port>`. Open a `.jsonl` show, then connect an MCP client. Tools describe the open show, channel groups, and behaviors. An agent edits by overwriting that `.jsonl`. The editor reloads the file. A behavior is the control points of a shape, stored beside the show and written onto the timeline in memory.
+
+Behavior definitions are stored in `<show>.behaviors.json` beside the show.
+
+`describe_show`, `describe_track`, `list_track_keyframes`, and `sample_channels` read the open show. `describe_show` returns `track_samples` (downsampled curves) for active channels.
+
+Add to Cursor **Settings → MCP**:
+
+```json
+"dmx-recorder": {
+  "url": "http://127.0.0.1:9474/mcp"
+}
+```
 
 ## Play a show
 
